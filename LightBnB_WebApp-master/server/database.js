@@ -1,14 +1,6 @@
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  user: 'vagrant',
-  password: 'letmein',
-  host: 'localhost',
-  database: 'lightbnb'
-});
-
+const db = require('./db')
 
 /// Users
 
@@ -19,7 +11,7 @@ const pool = new Pool({
  */
 const getUserWithEmail = function (email) {
 
-  return pool.query(`
+  return db.query(`
   SELECT * FROM users
   WHERE email = $1;`, [email])
     .then(res => {
@@ -38,7 +30,7 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function (id) {
-  return pool.query(`
+  return db.query(`
   SELECT * FROM users
   WHERE id = $1;`, [id])
     .then(res => {
@@ -59,7 +51,7 @@ exports.getUserWithId = getUserWithId;
  */
 const addUser = function (user) {
 
-  return pool
+  return db
     .query(`
     INSERT INTO users (name, email, password)
     VALUES ($1, $2, $3)
@@ -79,7 +71,7 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  return pool.query(`
+  return db.query(`
   SELECT 
 	reservations.*, 
 	properties.*,
@@ -152,7 +144,7 @@ const getAllProperties = function (options, limit = 10) {
   //console.log(queryString, queryParams);
 
   // 6
-  return pool.query(queryString, queryParams)
+  return db.query(queryString, queryParams)
     .then(res => res.rows);
 }
 exports.getAllProperties = getAllProperties;
@@ -169,7 +161,7 @@ const addProperty = function (property) {
   console.log(Object.values(property));
   console.log("insertparams", insertParams)
   
-  return pool.query(`
+  return db.query(`
   INSERT INTO properties (
   title,
   description,
